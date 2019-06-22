@@ -10,9 +10,13 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var displayLabel: UILabel!
     
     var isFinishedTypingNumber: Bool = true
+    
+    private var calculator = CalculatorLogic()
+    
+    @IBOutlet weak var displayLabel: UILabel!
+
     
     private var displayValue: Double {
         get {
@@ -25,7 +29,6 @@ class ViewController: UIViewController {
             displayLabel.text = String(newValue)
         }
     }
-   
     
     @IBAction func calcButtonPressed(_ sender: UIButton) {
         
@@ -33,13 +36,18 @@ class ViewController: UIViewController {
     
         isFinishedTypingNumber = true
         
-        if let calcMethod = sender.currentTitle {
+        calculator.setNumber(displayValue)
+        
+        if let calcMethod = sender.currentTitle { // check to make sure sender.currentTitle (the current text value of the button that was pressed) has a value (is not nil)
             
-            let calculator = CalculatorLogic(n: displayValue)
-            
-            guard let result = calculator.calculate(symbol: calcMethod) else {fatalError("Calculator: The result of the calculation is nil.")}
-            
-            displayValue = result
+            if let result = calculator.calculate(symbol: calcMethod) {
+                displayValue = result
+            } else {
+                // user probably pressed the = key before entering any other number(s)
+                // just don't do anything
+                // or maybe? set isFinishedTypingNumber = false
+            }
+
         }
         
     }
@@ -51,29 +59,17 @@ class ViewController: UIViewController {
     
         if let numValue = sender.currentTitle {
 
-                if isFinishedTypingNumber {
-                    displayLabel.text = numValue
-                    isFinishedTypingNumber = false
+                if isFinishedTypingNumber { // prior to typing this number user was finished, now start typing a new number
+                    displayLabel.text = numValue // display the first new number in the text field
+                    isFinishedTypingNumber = false // indicate user is now typing a number
                     
                 } else {
                     
-                    if numValue == "." {
-
-                        // floor() rounds down to nearest whole number
-                        // compairs rounded value of display to non-rounded value of display.
-                        // if they are the same then the display is an integer.
-// What above conditions where the display value is a whole number integer, like 8.0?  T
-// This will allow an additional . to be added to the display value.
-// Because floor(8.0) == 8.0 is true
-                        let isInt = floor(displayValue) == displayValue
-                        // if display is not an integer (ie; there is a decimal in the display value, eg; 8.3)
-                        // then exit the function by using the return command.
-                        if !isInt {
-                            return
-                        }
+                    // if the "number" key pressed is the "." AND the display text already has a "." then exit the function
+                    if numValue == "." && displayLabel.text!.contains(".") {
+                        return
                     }
-                    
-                    displayLabel.text?.append(contentsOf: numValue)
+                    displayLabel.text?.append(contentsOf: numValue) // add this number to the end of existing numbers in the text field
                 }
         
         }
