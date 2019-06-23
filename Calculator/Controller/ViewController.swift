@@ -46,6 +46,11 @@ class ViewController: UIViewController {
                 // user probably pressed the = key before entering any other number(s)
                 // just don't do anything
                 // or maybe? set isFinishedTypingNumber = false
+                //isFinishedTypingNumber = false
+            }
+            
+            if calcMethod == "=" {
+                isFinishedTypingNumber = true
             }
 
         }
